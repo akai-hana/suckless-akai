@@ -1,0 +1,47 @@
+From 351084dabc6dbee742a3bf3b8829d530eb146e0d Mon Sep 17 00:00:00 2001
+From: elbachir-one <bachiralfa@gmail.com>
+Date: Mon, 21 Oct 2024 14:03:49 +0100
+Subject: [PATCH] Keybinds to control the backlight
+
+---
+ config.def.h | 4 ++++
+ dwm.c        | 1 +
+ 2 files changed, 5 insertions(+)
+
+diff --git a/config.def.h b/config.def.h
+index 9efa774..908c645 100644
+--- a/config.def.h
++++ b/config.def.h
+@@ -59,6 +59,8 @@ static const Layout layouts[] = {
+ static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
+ static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
+ static const char *termcmd[]  = { "st", NULL };
++static const char *upbrightness[]   = { "xbacklight", "-inc", "10", NULL };
++static const char *downbrightness[] = { "xbacklight", "-dec", "10", NULL };
+ 
+ static const Key keys[] = {
+ 	/* modifier                     key        function        argument */
+@@ -95,6 +97,8 @@ static const Key keys[] = {
+ 	TAGKEYS(                        XK_8,                      7)
+ 	TAGKEYS(                        XK_9,                      8)
+ 	{ MODKEY|ShiftMask,             XK_q,      quit,           {0} },
++	{ 0,            XF86XK_MonBrightnessUp,    spawn,          {.v = upbrightness } },
++	{ 0,            XF86XK_MonBrightnessDown,  spawn,          {.v = downbrightness } },
+ };
+ 
+ /* button definitions */
+diff --git a/dwm.c b/dwm.c
+index 1443802..5439d3e 100644
+--- a/dwm.c
++++ b/dwm.c
+@@ -36,6 +36,7 @@
+ #include <X11/Xlib.h>
+ #include <X11/Xproto.h>
+ #include <X11/Xutil.h>
++#include <X11/XF86keysym.h>
+ #ifdef XINERAMA
+ #include <X11/extensions/Xinerama.h>
+ #endif /* XINERAMA */
+-- 
+2.46.2
+
