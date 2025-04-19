@@ -1,25 +1,30 @@
 /* akai's custom config */
 
 /* appearance */
-static const unsigned int borderpx  = 0;        /* border pixel of windows */
-static const unsigned int snap      = 32;       /* snap pixel */
-static const int showbar            = 1;        /* 0 means no bar */
-static const int topbar             = 1;        /* 0 means bottom bar */
-static const char *fonts[]          = { "firacode:size=10" };
-static const char dmenufont[]       = "firacode:size=10";
-static const char col_gray1[]       = "#0f1015";
-static const char col_gray2[]       = "#444444";
-static const char col_gray3[]       = "#bbbbbb";
-static const char col_gray4[]       = "#eeeeee";
-static const char col_cyan[]        = "#ac3232"; /* focused color */
-static const char *colors[][3]      = {
-	/*               fg         bg         border   */
-	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
-	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
+// windows
+static const unsigned int borderpx = 0;        /* border pixel of windows */
+static const unsigned int snap     = 32;       /* snap pixel */
+static const int showbar           = 1;        /* 0 means no bar */
+static const int topbar            = 0;        /* 0 means bottom bar */
+
+// font
+static const char *fonts[]         = { "FiraCode Nerd Font Mono Ret:style=Regular:size=10" };
+static const char dmenufont[]      = { "FiraCode Nerd Font Mono Ret:style=Regular:size=10" };
+
+// colorscheme
+static const char col_gray1[]      = "#0f1015";
+static const char col_gray2[]      = "#444444";
+static const char col_gray3[]      = "#bbbbbb";
+static const char col_gray4[]      = "#eeeeee";
+static const char col_cyan[]       = "#ac3232"; /* focused color */
+static const char *colors[][3]     = {
+       /*               fg         bg         border   */
+       [SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
+       [SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
 };
 
 /* tagging */
-static const char *tags[] = { "M", "A", "T", "I", "A", "S" };
+static const char *tags[] = { "m", "a", "t", "i", "a", "s" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -34,6 +39,7 @@ static const Rule rules[] = {
         { "prismlauncher",  NULL,       NULL,  1 << 2,    0,          -1 },
         { "Emacs",          NULL,       NULL,  1 << 4,    0,          -1 },
         { "corectrl",       NULL,       NULL,  1 << 5,    0,          -1 },
+        { "qbittorrent",    NULL,       NULL,  1 << 5,    0,          -1 },
 };
 
 /* layout(s) */
@@ -63,15 +69,15 @@ static const Layout layouts[] = {
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
 static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
-static const char *termcmd[]  = { "kitty", NULL };
+static const char *termcmd[]  = { "/home/akai/Apps/ghostty.AppImage", NULL };
 
 // custom placeholders
-static const char *browser[]   = { "firefox", NULL };
-static const char *discord[]   = { "flatpak run io.github.equicord.equibop", NULL };
-static const char *minecraft[] = { "prismlauncher", NULL };
-static const char *music[]     = { "flatpak run com.github.th_ch.youtube_music", NULL };
-static const char *ddnet[]     = { "flatpak run tw.ddnet.ddnet.league.gctf", NULL };
-static const char *osu[]       = { "flatpak run sh.ppy.osu", NULL };
+static const char *browser[]   = { "sh", "-c", "~/scripts/firefox.sh", NULL };
+static const char *discord[]   = { "sh", "-c", "~/scripts/discord.sh", NULL };
+static const char *minecraft[] = { "sh", "-c", "prismlauncher", NULL };
+static const char *music[]     = { "sh", "-c", "~/scripts/music.sh", NULL };
+static const char *ddnet[]     = { "sh", "-c", "~/scripts/ddnet.sh", NULL };
+static const char *osu[]       = { "sh", "-c", "~/scripts/osu.sh", NULL };
 
 /* bindkeys */
 static const Key keys[] = {
@@ -109,8 +115,8 @@ static const Key keys[] = {
 	{ MODKEY,             XK_Return,   zoom,             {0} },
 	{ MODKEY,             XK_Tab,      view,             {0} },
 	{ MODKEY|ShiftMask,   XK_c,        killclient,       {0} },
-	{ MODKEY,             XK_t,        setlayout,        {.v = &layouts[0]} },
-	{ MODKEY,             XK_f,        setlayout,        {.v = &layouts[1]} },
+	{ MODKEY,             XK_4,        setlayout,        {.v = &layouts[0]} },
+	{ MODKEY,             XK_5,        setlayout,        {.v = &layouts[1]} },
 	{ MODKEY,             XK_m,        setlayout,        {.v = &layouts[2]} },
 	{ MODKEY,             XK_space,    setlayout,        {0} },
 	{ MODKEY|ShiftMask,   XK_space,    togglefloating,   {0} },
@@ -125,17 +131,17 @@ static const Key keys[] = {
 /* button definitions */
 /* click can be ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static const Button buttons[] = {
-	/* click                event mask      button          function        argument */
-	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
-	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
-	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
-	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
-	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
-	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
-	{ ClkClientWin,         MODKEY,         Button3,        resizemouse,    {0} },
-	{ ClkTagBar,            0,              Button1,        view,           {0} },
-	{ ClkTagBar,            0,              Button3,        toggleview,     {0} },
-	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
-	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
+	/* click           eventmask button     function          argument */
+	{ ClkLtSymbol,     0,        Button1,   setlayout,        {0} },
+	{ ClkLtSymbol,     0,        Button3,   setlayout,        {.v = &layouts[2]} },
+	{ ClkWinTitle,     0,        Button2,   zoom,             {0} },
+	{ ClkStatusText,   0,        Button2,   spawn,            {.v = termcmd } },
+	{ ClkClientWin,    MODKEY,   Button1,   movemouse,        {0} },
+	{ ClkClientWin,    MODKEY,   Button2,   togglefloating,   {0} },
+	{ ClkClientWin,    MODKEY,   Button3,   resizemouse,      {0} },
+	{ ClkTagBar,       0,        Button1,   view,             {0} },
+	{ ClkTagBar,       0,        Button3,   toggleview,       {0} },
+	{ ClkTagBar,       MODKEY,   Button1,   tag,              {0} },
+	{ ClkTagBar,       MODKEY,   Button3,   toggletag,        {0} },
 };
 
