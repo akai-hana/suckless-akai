@@ -24,29 +24,26 @@ static const char *colors[][3]     = {
 };
 
 /* tagging */
+// workspace indicators
 static const char *tags[] = { "m", "a", "t", "i", "a", "s" };
 
+// workspace redirects
 static const Rule rules[] = {
-	/* xprop(1):
-	 *	WM_CLASS(STRING) = instance, class
-	 *	WM_NAME(STRING) = title
-	 */
-	/* class      instance    title       tags mask     isfloating   monitor */
-
         /* class            instance    title  tags mask  isfloating  monitor */
         { "firefox",        NULL,       NULL,  1 << 0,    0,          -1 },
-        { NULL,             "equibop",  NULL,  1 << 1,    0,          -1 },
+        { "equibop",        NULL,       NULL,  1 << 1,    0,          -1 },
         { "prismlauncher",  NULL,       NULL,  1 << 2,    0,          -1 },
         { "Emacs",          NULL,       NULL,  1 << 4,    0,          -1 },
+        { "java",           NULL,       NULL,  1 << 4,    0,          -1 },
         { "corectrl",       NULL,       NULL,  1 << 5,    0,          -1 },
         { "qbittorrent",    NULL,       NULL,  1 << 5,    0,          -1 },
 };
 
 /* layout(s) */
-static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] */
-static const int nmaster     = 1;    /* number of clients in master area */
-static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
-static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
+static const float mfact        = 0.55; /* factor of master area size [0.05..0.95] */
+static const int nmaster        = 1;    /* number of clients in master area */
+static const int resizehints    = 1;    /* 1 means respect size hints in tiled resizals */
+static const int lockfullscreen = 1;    /* 1 will force focus on the fullscreen window */
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
@@ -144,4 +141,3 @@ static const Button buttons[] = {
 	{ ClkTagBar,       MODKEY,   Button1,   tag,              {0} },
 	{ ClkTagBar,       MODKEY,   Button3,   toggletag,        {0} },
 };
-
