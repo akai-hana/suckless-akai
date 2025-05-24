@@ -51,7 +51,8 @@
 #define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
 #define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
                                * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
-#define ISVISIBLE(C) (C->swallowed == NULL && (C->tags & C->mon->tagset[C->mon->seltags]))
+#define ISVISIBLE(C)            (C->swallowed == NULL && (C->tags & C->mon->tagset[C->mon->seltags]))
+#define LENGTH(X)               (sizeof X / sizeof X[0])
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
 #define WIDTH(X)                ((X)->w + 2 * (X)->bw)
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
@@ -60,7 +61,7 @@
 
 /* enums */
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
-enum { SchemeNorm, SchemeSel, SchemeHov, SchemeHid }; /* color schemes */
+enum { SchemeNorm, SchemeSel, SchemeHid }; /* color schemes */
 enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
        NetWMFullscreen, NetActiveWindow, NetWMWindowType,
        NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
@@ -135,7 +136,6 @@ struct Monitor {
 	int hidsel;
 	Client *clients;
 	Client *sel;
-	Client *hov;
 	Client *stack;
 	Monitor *next;
 	Window barwin;
@@ -228,6 +228,7 @@ static void show(const Arg *arg);
 static void showall(const Arg *arg);
 static void showwin(Client *c);
 static void showhide(Client *c);
+static void sigchld(int unused);
 static void spawn(const Arg *arg);
 static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
@@ -856,9 +857,7 @@ drawbar(Monitor *m)
 			for (c = m->clients; c; c = c->next) {
 				if (!ISVISIBLE(c))
 					continue;
-				if (m->hov == c)
-					scm = SchemeHov;
-				else if (m->sel == c)
+				if (m->sel == c)
 					scm = SchemeSel;
 				else if (HIDDEN(c))
 					scm = SchemeHid;
@@ -1123,26 +1122,16 @@ grabkeys(void)
 {
 	updatenumlockmask();
 	{
-		unsigned int i, j, k;
+		unsigned int i, j;
 		unsigned int modifiers[] = { 0, LockMask, numlockmask, numlockmask|LockMask };
-		int start, end, skip;
-		KeySym *syms;
+		KeyCode code;
 
 		XUngrabKey(dpy, AnyKey, AnyModifier, root);
-		XDisplayKeycodes(dpy, &start, &end);
-		syms = XGetKeyboardMapping(dpy, start, end - start + 1, &skip);
-		if (!syms)
-			return;
-		for (k = start; k <= end; k++)
-			for (i = 0; i < LENGTH(keys); i++)
-				/* skip modifier codes, we do that ourselves */
-				if (keys[i].keysym == syms[(k - start) * skip])
-					for (j = 0; j < LENGTH(modifiers); j++)
-						XGrabKey(dpy, k,
-							 keys[i].mod | modifiers[j],
-							 root, True,
-							 GrabModeAsync, GrabModeAsync);
-		XFree(syms);
+		for (i = 0; i < LENGTH(keys); i++)
+			if ((code = XKeysymToKeycode(dpy, keys[i].keysym)))
+				for (j = 0; j < LENGTH(modifiers); j++)
+					XGrabKey(dpy, code, keys[i].mod | modifiers[j], root,
+						True, GrabModeAsync, GrabModeAsync);
 	}
 }
 
@@ -1332,76 +1321,18 @@ monocle(Monitor *m)
 void
 motionnotify(XEvent *e)
 {
-	int x, i;
 	static Monitor *mon = NULL;
-	Client *c;
 	Monitor *m;
 	XMotionEvent *ev = &e->xmotion;
 
-	if (ev->window != selmon->barwin) {
-		if (selmon->hov) {
-			if (selmon->hov != selmon->sel)
-				XSetWindowBorder(dpy, selmon->hov->win, scheme[SchemeNorm][ColBorder].pixel);
-			else
-				XSetWindowBorder(dpy, selmon->hov->win, scheme[SchemeSel][ColBorder].pixel);
-			
-			selmon->hov = NULL;
-			c = wintoclient(ev->window);
-			m = c ? c->mon : wintomon(ev->window);
-			drawbar(m);
-		}
-
-		if (ev->window == root) {
-			if ((m = recttomon(ev->x_root, ev->y_root, 1, 1)) != mon && mon) {
-				unfocus(selmon->sel, 1);
-				selmon = m;
-				focus(NULL);
-			}
-			mon = m;
-		}
-	
+	if (ev->window != root)
 		return;
+	if ((m = recttomon(ev->x_root, ev->y_root, 1, 1)) != mon && mon) {
+		unfocus(selmon->sel, 1);
+		selmon = m;
+		focus(NULL);
 	}
-
-	c = wintoclient(ev->window);
-	m = c ? c->mon : wintomon(ev->window);
-	c = m->clients;
-
-	x = 0, i = 0;
-	do
-		x += TEXTW(tags[i]);
-	while (ev->x >= x && ++i < LENGTH(tags));
-	if (i < LENGTH(tags) || ev->x < x + TEXTW(selmon->ltsymbol) || ev->x > selmon->ww - TEXTW(stext) + lrpad - 2) {
-		if (selmon->hov) {
-			if (selmon->hov != selmon->sel)
-				XSetWindowBorder(dpy, selmon->hov->win, scheme[SchemeNorm][ColBorder].pixel);
-			else
-				XSetWindowBorder(dpy, selmon->hov->win, scheme[SchemeSel][ColBorder].pixel);
-			selmon->hov = NULL;
-			drawbar(m);
-		}
-	} else {
-		x += TEXTW(selmon->ltsymbol);
-		if (c) {
-			do {
-				if (!ISVISIBLE(c))
-					continue;
-				else
-					x +=(1.0 / (double)m->bt) * m->btw;
-			} while (ev->x > x && (c = c->next));
-			if (c) {
-				if (selmon->hov) {
-					if (selmon->hov != selmon->sel)
-						XSetWindowBorder(dpy, selmon->hov->win, scheme[SchemeNorm][ColBorder].pixel);
-					else
-						XSetWindowBorder(dpy, selmon->hov->win, scheme[SchemeSel][ColBorder].pixel);
-				}
-				selmon->hov = c;
-				XSetWindowBorder(dpy, c->win, scheme[SchemeHov][ColBorder].pixel);
-			}
-		}
-		drawbar(m);
-	}
+	mon = m;
 }
 
 void
@@ -1821,16 +1752,9 @@ setup(void)
 	int i;
 	XSetWindowAttributes wa;
 	Atom utf8string;
-	struct sigaction sa;
 
-	/* do not transform children into zombies when they terminate */
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_NOCLDSTOP | SA_NOCLDWAIT | SA_RESTART;
-	sa.sa_handler = SIG_IGN;
-	sigaction(SIGCHLD, &sa, NULL);
-
-	/* clean up any zombies (inherited from .xinitrc etc) immediately */
-	while (waitpid(-1, NULL, WNOHANG) > 0);
+	/* clean up any zombies immediately */
+	sigchld(0);
 
 	/* init screen */
 	screen = DefaultScreen(dpy);
@@ -1963,22 +1887,20 @@ showhide(Client *c)
 }
 
 void
+sigchld(int unused)
+{
+	if (signal(SIGCHLD, sigchld) == SIG_ERR)
+		die("can't install SIGCHLD handler:");
+	while (0 < waitpid(-1, NULL, WNOHANG));
+}
+
+void
 spawn(const Arg *arg)
 {
-	struct sigaction sa;
-
-	if (arg->v == dmenucmd)
-		dmenumon[0] = '0' + selmon->num;
 	if (fork() == 0) {
 		if (dpy)
 			close(ConnectionNumber(dpy));
 		setsid();
-
-		sigemptyset(&sa.sa_mask);
-		sa.sa_flags = 0;
-		sa.sa_handler = SIG_DFL;
-		sigaction(SIGCHLD, &sa, NULL);
-
 		execvp(((char **)arg->v)[0], (char **)arg->v);
 		die("dwm: execvp '%s' failed:", ((char **)arg->v)[0]);
 	}
@@ -2220,7 +2142,6 @@ updatebars(void)
 				CWOverrideRedirect|CWBackPixmap|CWEventMask, &wa);
 		XDefineCursor(dpy, m->barwin, cursor[CurNormal]->cursor);
 		XMapRaised(dpy, m->barwin);
-		XSelectInput(dpy, m->barwin, ButtonPressMask|PointerMotionMask);
 		XSetClassHint(dpy, m->barwin, &ch);
 	}
 }
@@ -2239,7 +2160,7 @@ updatebarpos(Monitor *m)
 }
 
 void
-updateclientlist(void)
+updateclientlist()
 {
 	Client *c;
 	Monitor *m;
