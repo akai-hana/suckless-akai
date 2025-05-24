@@ -11,4 +11,4 @@ i started off using 6.5, but now i use dwm 6.4 because i found there was no mean
 + [actual fullscreen](https://dwm.suckless.org/patches/actualfullscreen/)
 
 ### other details
-- it is themed after the VN "milk outside a bag of milk". i used the color hex codes from the game, which can be found at [its wiki](https://milk.wiki.gg/wiki/Milk_outside_a_bag_of_milk_outside_a_bag_of_milk#Color_Palette)
+- it is themed after the VN "milk outside a bag of milk". i used the color hex codes from the game, which can be found at [its wiki](https://milk.wiki.gg/wiki/Milk_outside_a_bag_of_milk_outside_a_bag_of_milk#Color_Palette).
