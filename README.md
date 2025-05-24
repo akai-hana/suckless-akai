@@ -1,7 +1,7 @@
 ***
 this is my custom dwm build.
 
-i started off using 6.5, but now i use dwm 6.4 because i found there was no meaningful difference between 6.4 and 6.5, and 6.5 introduced changes that broke many patches that, at the moment of writing this *(e.g. [awesomebar](https://dwm.suckless.org/patches/awesomebar/))* have no 6.5 ports.
+i started off using 6.5, but now i use dwm 6.4 because i found there was no meaningful difference between 6.4 and 6.5, and 6.5 introduced changes that broke many patches that, at the moment of writing this, have no 6.5 ports *(e.g. [awesomebar](https://dwm.suckless.org/patches/awesomebar/))*.
 ***
 
 ### patches used:
