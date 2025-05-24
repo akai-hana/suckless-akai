@@ -9,7 +9,9 @@ static const int topbar = 0;            /* 0 means bottom bar */
 
 // font
 static const char *fonts[] = {
-    "FiraCode Nerd Font Propo Ret:style=Regular:size=10"};
+    "FiraCode Nerd Font Propo Ret:size=10",
+    "Noto Sans CJK JP Medium:size=10"};
+    
 static const char dmenufont[] = {
     "FiraCode Nerd Font Mono Ret:style=Regular:size=10"};
 
@@ -115,8 +117,8 @@ static const Key keys[] = {
 
 
     /* remove inc/dec master: i don't use it, takes up keybinding slots */
-    // { MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
-    // { MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
+    { MODKEY,                       XK_o,      incnmaster,     {.i = +1 } },
+    { MODKEY,                       XK_p,      incnmaster,     {.i = -1 } },
 
     // window control
     {MODKEY, XK_h, setmfact, {.f = -0.05}},
