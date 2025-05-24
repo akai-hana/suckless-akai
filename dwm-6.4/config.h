@@ -9,7 +9,9 @@ static const int topbar = 0;            /* 0 means bottom bar */
 
 // font
 static const char *fonts[] = {
-    "FiraCode Nerd Font Propo Ret:style=Regular:size=10"};
+    "FiraCode Nerd Font Propo Ret:size=10",
+    "Noto Sans CJK JP Medium:size=10"};
+    
 static const char dmenufont[] = {
     "FiraCode Nerd Font Mono Ret:style=Regular:size=10"};
 
