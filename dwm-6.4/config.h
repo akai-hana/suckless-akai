@@ -27,7 +27,7 @@ static const char *colors[][3] = {
 
 /* tagging */
 // workspace indicators
-static const char *tags[] = {"m", "a", "t", "i", "a", "s"};
+static const char *tags[] = {"贖", "罪", "へ", "の", "途", "上"};
 
 // workspace redirects
 static const Rule rules[] = {
@@ -94,21 +94,25 @@ static const Key keys[] = {
         TAGKEYS(XK_w, 4) TAGKEYS(XK_e, 5)
 
     // important dwm stuff
-    {MODKEY, XK_r, spawn, {.v = dmenucmd}},
-    {MODKEY | ShiftMask, XK_Return, quit, {0}},
+    { MODKEY, XK_r, spawn, {.v = dmenucmd}},
+    { MODKEY | ShiftMask, XK_Return, quit, {0}},
 
-    {MODKEY, XK_a, spawn, {.v = browser}},
-    {MODKEY, XK_s, spawn, {.v = discord}},
-    {MODKEY, XK_d, spawn, {.v = termcmd}},
-    {MODKEY, XK_f, togglefullscr, {0}},
-    {MODKEY, XK_g, spawn, {.v = music}},
-    {MODKEY, XK_g, spawn, {.v = minecraft}},
-    {MODKEY, XK_z, spawn, {.v = ddnet}},
-    {MODKEY, XK_x, spawn, {.v = osu}},
+    { MODKEY, XK_a, spawn, {.v = browser}},
+    { MODKEY, XK_s, spawn, {.v = discord}},
+    { MODKEY, XK_d, spawn, {.v = termcmd}},
+    { MODKEY, XK_f, togglefullscr, {0}},
+    { MODKEY, XK_g, spawn, {.v = music}},
+    { MODKEY, XK_g, spawn, {.v = minecraft}},
+    { MODKEY, XK_z, spawn, {.v = ddnet}},
+    { MODKEY, XK_x, spawn, {.v = osu}},
 
     {MODKEY, XK_b, togglebar, {0}},
-    {MODKEY, XK_j, focusstack, {.i = +1}},
-    {MODKEY, XK_k, focusstack, {.i = -1}},
+    // awesomebar patch
+    {MODKEY,                       XK_j,      focusstackvis,  {.i = +1 } },
+    {MODKEY,                       XK_k,      focusstackvis,  {.i = -1 } },
+    {MODKEY|ShiftMask,             XK_j,      focusstackhid,  {.i = +1 } },
+    {MODKEY|ShiftMask,             XK_k,      focusstackhid,  {.i = -1 } },
+
 
     /* remove inc/dec master: i don't use it, takes up keybinding slots */
     // { MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
@@ -131,6 +135,12 @@ static const Key keys[] = {
     {MODKEY, XK_period, focusmon, {.i = +1}},
     {MODKEY | ShiftMask, XK_comma, tagmon, {.i = -1}},
     {MODKEY | ShiftMask, XK_period, tagmon, {.i = +1}},
+
+    // awesomebar patch
+    { MODKEY,                       XK_t,      show,           {0} },
+    { MODKEY|ShiftMask,             XK_t,      showall,        {0} },
+    { MODKEY,                       XK_y,      hide,           {0} },
+
 };
 
 /* button definitions */
